@@ -1,0 +1,67 @@
+{
+  "info": {
+    "name": "Inventario y Ventas - Sistema Distribuido",
+    "description": "Pruebas de la API REST (CRUD, ventas, reportes y health). Variable {{baseUrl}} = http://localhost (o la IP publica de AWS).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost" }
+  ],
+  "item": [
+    {
+      "name": "Health - servicio principal",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/health" }
+    },
+    {
+      "name": "Productos - Listar",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/productos" }
+    },
+    {
+      "name": "Productos - Obtener por ID",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/productos/1" }
+    },
+    {
+      "name": "Productos - Crear",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "url": "{{baseUrl}}/api/productos",
+        "body": { "mode": "raw", "raw": "{\n  \"codigo\": \"P100\",\n  \"nombre\": \"Galletas Field 200g\",\n  \"precio\": 3.20,\n  \"stock\": 40\n}" }
+      }
+    },
+    {
+      "name": "Productos - Actualizar",
+      "request": {
+        "method": "PUT",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "url": "{{baseUrl}}/api/productos/1",
+        "body": { "mode": "raw", "raw": "{\n  \"codigo\": \"P001\",\n  \"nombre\": \"Arroz Costeno 1kg\",\n  \"precio\": 4.90,\n  \"stock\": 150\n}" }
+      }
+    },
+    {
+      "name": "Productos - Eliminar",
+      "request": { "method": "DELETE", "url": "{{baseUrl}}/api/productos/6" }
+    },
+    {
+      "name": "Ventas - Registrar (descuenta stock)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "url": "{{baseUrl}}/api/ventas",
+        "body": { "mode": "raw", "raw": "{\n  \"cliente\": \"Juan Perez\",\n  \"items\": [\n    { \"productoId\": 1, \"cantidad\": 3 },\n    { \"productoId\": 3, \"cantidad\": 2 }\n  ]\n}" }
+      }
+    },
+    {
+      "name": "Ventas - Listar",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/ventas" }
+    },
+    {
+      "name": "Reportes - Stock bajo (servicio secundario)",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/reportes/stock-bajo?umbral=10" }
+    },
+    {
+      "name": "Reportes - Resumen de ventas",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/reportes/resumen-ventas" }
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+digraph fisica {
+  rankdir=TB; bgcolor="white"; compound=true;
+  node [fontname="Helvetica" fontsize=10];
+  edge [fontname="Helvetica" fontsize=9 color="#475569"];
+
+  internet [label="Internet\n(usuarios)" shape=ellipse style=filled fillcolor="#e0f2fe" color="#0284c7"];
+
+  subgraph cluster_host {
+    label="Servidor / Host Docker  (AWS EC2 - Ubuntu 22.04)";
+    style="rounded,filled"; fillcolor="#f8fafc"; color="#334155"; fontsize=12;
+
+    lb [label="Contenedor\nNginx :80" shape=box style="rounded,filled" fillcolor="#c7d2fe" color="#4f46e5"];
+
+    subgraph cluster_app {
+      label="Red interna Docker (iv-net)"; style="rounded,filled"; fillcolor="#eef2ff"; color="#818cf8";
+      i1 [label="inventory1\nTomcat :8080" shape=box style="rounded,filled" fillcolor="#bbf7d0" color="#16a34a"];
+      i2 [label="inventory2\nTomcat :8080" shape=box style="rounded,filled" fillcolor="#bbf7d0" color="#16a34a"];
+      rep [label="reporting\nTomcat :8080" shape=box style="rounded,filled" fillcolor="#fbcfe8" color="#db2777"];
+      db [label="MySQL :3306\n(volumen persistente)" shape=cylinder style=filled fillcolor="#fde68a" color="#d97706"];
+    }
+  }
+
+  internet -> lb [label="HTTP :80"];
+  lb -> i1 [label="balanceo"];
+  lb -> i2 [label="balanceo"];
+  lb -> rep;
+  i1 -> db; i2 -> db;
+  rep -> lb [label="REST" style=dashed color="#db2777"];
+}

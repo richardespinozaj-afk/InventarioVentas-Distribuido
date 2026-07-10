@@ -1,0 +1,18 @@
+digraph contexto {
+  rankdir=TB; bgcolor="white";
+  node [fontname="Helvetica" fontsize=11];
+  edge [fontname="Helvetica" fontsize=9 color="#475569"];
+
+  cajero [label="Cajero\n(registra ventas)" shape=box style="rounded,filled" fillcolor="#dbeafe" color="#3b82f6"];
+  admin  [label="Administrador\n(gestiona inventario)" shape=box style="rounded,filled" fillcolor="#dbeafe" color="#3b82f6"];
+
+  sistema [label="SISTEMA DE INVENTARIO Y VENTAS\n(solución distribuida REST + Docker)"
+           shape=box style="rounded,filled" fillcolor="#0ea5e9" fontcolor="white" fontsize=13 width=4 height=1.2];
+
+  db [label="Base de datos\nMySQL" shape=cylinder style=filled fillcolor="#fde68a" color="#d97706"];
+
+  cajero -> sistema [label="registra ventas /\nconsulta stock (HTTPS)"];
+  admin  -> sistema [label="CRUD de productos (HTTPS)"];
+  sistema -> db [label="persiste datos (JDBC)"];
+  sistema -> sistema [label="reportes internos (REST)" style=dashed];
+}

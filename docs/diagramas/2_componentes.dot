@@ -1,0 +1,33 @@
+digraph componentes {
+  rankdir=LR; bgcolor="white"; compound=true;
+  node [fontname="Helvetica" fontsize=10 shape=box style="rounded,filled"];
+  edge [fontname="Helvetica" fontsize=9 color="#475569"];
+
+  cliente [label="Cliente Web /\nUI (index.html)" fillcolor="#dbeafe" color="#3b82f6"];
+  lb [label="Nginx\nLoad Balancer\n(punto de entrada)" fillcolor="#c7d2fe" color="#4f46e5"];
+
+  subgraph cluster_inv {
+    label="inventory-service (servicio principal)"; style="rounded,filled"; fillcolor="#f1f5f9"; color="#94a3b8";
+    r1 [label="ProductoResource\n(JAX-RS)" fillcolor="#bbf7d0" color="#16a34a"];
+    r2 [label="VentaResource\n(JAX-RS)" fillcolor="#bbf7d0" color="#16a34a"];
+    h1 [label="HealthResource" fillcolor="#bbf7d0" color="#16a34a"];
+    dao [label="ProductoDAO /\nVentaDAO" fillcolor="#e2e8f0" color="#64748b"];
+    conn [label="ConnectionDB\n(JDBC)" fillcolor="#e2e8f0" color="#64748b"];
+    r1 -> dao; r2 -> dao; dao -> conn;
+  }
+
+  subgraph cluster_rep {
+    label="reporting-service (servicio secundario)"; style="rounded,filled"; fillcolor="#f1f5f9"; color="#94a3b8";
+    rep [label="ReporteResource\n(JAX-RS)" fillcolor="#fbcfe8" color="#db2777"];
+    icli [label="InventoryClient\n(HTTP + reintentos)" fillcolor="#e2e8f0" color="#64748b"];
+    rep -> icli;
+  }
+
+  db [label="MySQL" shape=cylinder fillcolor="#fde68a" color="#d97706"];
+
+  cliente -> lb [label="REST/JSON"];
+  lb -> r1 [label="/api/productos" lhead=cluster_inv];
+  lb -> rep [label="/api/reportes" lhead=cluster_rep];
+  icli -> lb [label="consume REST\n(vía balanceador)" style=dashed color="#db2777"];
+  conn -> db [label="SQL"];
+}

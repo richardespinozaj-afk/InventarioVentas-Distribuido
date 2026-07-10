@@ -1,0 +1,23 @@
+digraph despliegue {
+  rankdir=TB; bgcolor="white"; compound=true;
+  node [fontname="Helvetica" fontsize=10 shape=component];
+  edge [fontname="Helvetica" fontsize=9 color="#475569"];
+
+  subgraph cluster_ec2 {
+    label="<<device>> AWS EC2 (Ubuntu) — Docker Engine + docker-compose";
+    style="rounded,filled"; fillcolor="#f8fafc"; color="#334155"; fontsize=12;
+
+    lb  [label="<<container>>\niv-loadbalancer\nnginx:1.25\npuerto 80" style=filled fillcolor="#c7d2fe"];
+    i1  [label="<<container>>\niv-inventory1\ninventory-service.war\nTomcat 9" style=filled fillcolor="#bbf7d0"];
+    i2  [label="<<container>>\niv-inventory2\ninventory-service.war\nTomcat 9" style=filled fillcolor="#bbf7d0"];
+    rep [label="<<container>>\niv-reporting\nreporting-service.war\nTomcat 9" style=filled fillcolor="#fbcfe8"];
+    db  [label="<<container>>\niv-mysql\nmysql:8.0\nvolumen mysql_data" shape=cylinder style=filled fillcolor="#fde68a"];
+  }
+
+  lb -> i1 [label="proxy_pass"];
+  lb -> i2 [label="proxy_pass"];
+  lb -> rep [label="/api/reportes"];
+  i1 -> db [label="JDBC 3306"];
+  i2 -> db [label="JDBC 3306"];
+  rep -> lb [label="INVENTORY_URL" style=dashed color="#db2777"];
+}

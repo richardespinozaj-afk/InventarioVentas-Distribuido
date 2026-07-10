@@ -1,0 +1,73 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: iv-mysql
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: inventario_ventas
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [iv-net]
+
+  inventory1:
+    build: ./inventory-service
+    container_name: iv-inventory1
+    environment:
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_NAME: inventario_ventas
+      DB_USER: app
+      DB_PASSWORD: app
+      NODE_ID: inventory1
+    depends_on:
+      mysql: { condition: service_healthy }
+    networks: [iv-net]
+
+  inventory2:
+    build: ./inventory-service
+    container_name: iv-inventory2
+    environment:
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_NAME: inventario_ventas
+      DB_USER: app
+      DB_PASSWORD: app
+      NODE_ID: inventory2
+    depends_on:
+      mysql: { condition: service_healthy }
+    networks: [iv-net]
+
+  reporting:
+    build: ./reporting-service
+    container_name: iv-reporting
+    environment:
+      INVENTORY_URL: http://loadbalancer/api
+      NODE_ID: reporting
+    networks: [iv-net]
+
+  loadbalancer:
+    image: nginx:1.25-alpine
+    container_name: iv-loadbalancer
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - inventory1
+      - inventory2
+      - reporting
+    networks: [iv-net]
+
+networks:
+  iv-net:
+    driver: bridge
+
+volumes:
+  mysql_data:
